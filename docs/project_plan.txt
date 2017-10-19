@@ -1,0 +1,27 @@
+Goals
+
+1. Build something that works
+2. Learn something new
+3. Have fun
+4. Elicit a "Wow, that's cool!" response
+
+Demonstrate the following skills
+- Architecture design
+- Production quality code
+- Requirements analysis
+- Unit testing
+- Version Control
+- Package Management & Deployment
+
+Work Breakdown & Deliverables
+
+Design (2 hours)
+ - Design UX / come up with requirements
+ - Design software architecture
+ - Define module interfaces
+
+Code (6 hours)
+
+
+
+
