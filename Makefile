@@ -20,13 +20,12 @@ CXX = g++
 CFLAGS = -c -Wall -I$(INCDIR) -fdiagnostics-color=always
 
 # Linking options
-#LDFLAGS = -L/usr/lib/x86_64-linux-gnu -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_objdetect 
 LDFLAGS = -lncurses
 
 # Executables 
 TARGET = gun_hunt
 
-#-- Do not edit below this line, except change .c to .cpp, if C++ is being used instead of C -- 
+#-- Do not edit below this line, except change .cpp to .c, if C is being used instead of C++ --
 
 SOURCES := $(wildcard $(SRCDIR)/*.cpp)
 INCLUDES := $(wildcard $(INCDIR)/*.h)
