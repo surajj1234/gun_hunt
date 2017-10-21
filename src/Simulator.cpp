@@ -6,6 +6,8 @@
 #include "Simulator.h"
 #include <ncurses.h>
 #include <stdio.h>
+#include <time.h>
+#include <math.h>
 
 Simulator::Simulator()
 {
@@ -84,9 +86,16 @@ void Simulator::drawScreen(void)
         attroff(COLOR_PAIR(2));
     }
 
-    // Draw status string
-    status_y = box_y1 - 1;
-    status_x = box_x1 + 1;
+    // Set window positions for status fields
+    latitude_y = box_y1 - 1;
+    latitude_x = box_x1;
+
+    longitude_y = latitude_y;
+    longitude_x = box_x1 + 15;
+
+    timestamp_y = latitude_y;
+    timestamp_x = box_x1 + 30;
+
     updatePositionData(box_y1, box_x1);
 
     refresh();
@@ -108,6 +117,7 @@ void Simulator::Run(void * param)
         {
             handleMouseEvent();
         }
+        updateTimestamp();
         checkForScreenResize();
     }
 }
@@ -141,10 +151,28 @@ bool Simulator::pointInBox(int y, int x)
 
 void Simulator::updatePositionData(int mouse_y, int mouse_x)
 {
-    // Using the top-left box corner as origin
-    mvprintw(status_y, status_x,
-            "Lat: %03d S\tLong: %03d E\tTime: %d",
-            mouse_y - box_y1, mouse_x - box_x1, 0);
+    mvprintw(latitude_y, latitude_x, "Lat: %03dS", mouse_y - box_y1);
+    mvprintw(longitude_y, longitude_x, "Long: %03dE", mouse_x - box_x1);
+}
+
+void Simulator::updateTimestamp(void)
+{
+    static struct timespec prev = {0,0};;
+    if (timeSinceMs(prev) > 1000)           // 1 Hz
+    {
+        clock_gettime(CLOCK_REALTIME, &prev);
+        mvprintw(timestamp_y, timestamp_x, "Time: %ld", prev.tv_sec);
+        // TODO: Send gps info to serial port
+    }
+}
+
+double Simulator::timeSinceMs(struct timespec start)
+{
+    static struct timespec end;
+    clock_gettime(CLOCK_REALTIME, &end);
+    double diff = (double)(end.tv_sec - start.tv_sec) * 1.0e9 +
+              (double)(end.tv_nsec - start.tv_nsec);
+    return diff / 1.0e6;
 }
 
 void Simulator::checkForScreenResize(void)
