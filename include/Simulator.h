@@ -18,6 +18,8 @@ class Simulator
         void InitGraphics();
 
     private:
+        enum ColorPair {RED_ON_WHITE = 1, YELLOW_ON_BLACK = 2,
+                        RED_ON_BLACK = 3, GREEN_ON_BLACK = 4};
         AudioDetector& audio_detector;
         CommClient& communications;
         int rows, cols;

@@ -29,10 +29,10 @@ void Simulator::InitGraphics()
     if (has_colors())
     {
         start_color();
-        init_pair(1, COLOR_RED, COLOR_WHITE);
-        init_pair(2, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(3, COLOR_RED, COLOR_BLACK);
-        init_pair(4, COLOR_GREEN, COLOR_BLACK);
+        init_pair(RED_ON_WHITE, COLOR_RED, COLOR_WHITE);
+        init_pair(YELLOW_ON_BLACK, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(RED_ON_BLACK, COLOR_RED, COLOR_BLACK);
+        init_pair(GREEN_ON_BLACK, COLOR_GREEN, COLOR_BLACK);
     }
 
     // Ugly hack to get terminal emulators to report mouse movement
@@ -46,11 +46,11 @@ void Simulator::drawScreen()
 {
     clear();
 
-    turnOnColor(1);
+    turnOnColor(RED_ON_WHITE);
     mvprintw(0, 0, "Move mouse inside battlefield to change Lat/Long");
     mvprintw(2, 0, "Mouse Left Click inside battlefield to fire a gunshot");
     mvprintw(4, 0, "Press q to exit\n");
-    turnOffColor(1);
+    turnOffColor(RED_ON_WHITE);
 
     // Figure out scaled co-ordinates and draw box for battlefield, with
     // dynamic spacing from the window borders
@@ -72,17 +72,12 @@ void Simulator::drawScreen()
     box_y3 = box_y1;
     box_x3 = cols - spacing_x;
 
-    turnOnColor(2);
+    turnOnColor(YELLOW_ON_BLACK);
     mvhline(box_y1, box_x1, '*', cols - (2 * spacing_x));
     mvhline(box_y2, box_x2, '*', cols - (2 * spacing_x));
     mvvline(box_y3, box_x3, '*', (rows - start_y) - (2 * spacing_y));
     mvvline(box_y1, box_x1, '*', (rows - start_y) - (2 * spacing_y));
-    turnOffColor(2);
-
-    if (has_colors())
-    {
-        attroff(COLOR_PAIR(2));
-    }
+    turnOffColor(YELLOW_ON_BLACK);
 
     // Set window positions for status fields
     latitude_y = box_y1 - 1;
@@ -171,15 +166,15 @@ void Simulator::updateEvents_1Hz()
         bool connected = communications.IsConnected();
         if (connected)
         {
-            turnOnColor(4);
+            turnOnColor(GREEN_ON_BLACK);
             printw("CONNECTED   ");
-            turnOffColor(4);
+            turnOffColor(GREEN_ON_BLACK);
         }
         else
         {
-            turnOnColor(3);
+            turnOnColor(RED_ON_BLACK);
             printw("DISCONNECTED");
-            turnOffColor(3);
+            turnOffColor(RED_ON_BLACK);
         }
 
         // TODO: Send gps info to serial port
