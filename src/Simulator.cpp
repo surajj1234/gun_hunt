@@ -9,11 +9,12 @@
 #include <time.h>
 #include <math.h>
 
-Simulator::Simulator()
+Simulator::Simulator(AudioDetector ad)
 {
+    audio_detector = ad;
 }
 
-void Simulator::InitGraphics(void)
+void Simulator::InitGraphics()
 {
     // Refer to ncurses docs for initialization details
     initscr();
@@ -39,7 +40,7 @@ void Simulator::InitGraphics(void)
     drawScreen();
 }
 
-void Simulator::drawScreen(void)
+void Simulator::drawScreen()
 {
     clear();
 
@@ -107,7 +108,7 @@ Simulator::~Simulator()
     endwin();
 }
 
-void Simulator::Run(void)
+void Simulator::Run()
 {
     int ch;
 
@@ -122,7 +123,7 @@ void Simulator::Run(void)
     }
 }
 
-void Simulator::handleMouseEvent(void)
+void Simulator::handleMouseEvent()
 {
     MEVENT event;
     if(getmouse(&event) == OK)
@@ -138,6 +139,7 @@ void Simulator::handleMouseEvent(void)
             else if (event.bstate & BUTTON1_PRESSED)
             {
                 mvprintw(mouse_y, mouse_x, "BOOM!");
+                audio_detector.setDetected(true);
             }
         }
     }
@@ -155,7 +157,7 @@ void Simulator::updatePositionData(int mouse_y, int mouse_x)
     mvprintw(longitude_y, longitude_x, "Long: %03dE", mouse_x - box_x1);
 }
 
-void Simulator::updateTimestamp(void)
+void Simulator::updateTimestamp()
 {
     static struct timespec prev = {0,0};;
     if (timeSinceMs(prev) > 1000)           // 1 Hz
@@ -175,7 +177,7 @@ double Simulator::timeSinceMs(struct timespec start)
     return diff / 1.0e6;
 }
 
-void Simulator::checkForScreenResize(void)
+void Simulator::checkForScreenResize()
 {
     int current_rows, current_cols;
     getmaxyx(stdscr, current_rows, current_cols);
