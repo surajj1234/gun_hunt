@@ -9,9 +9,8 @@
 #include <time.h>
 #include <math.h>
 
-Simulator::Simulator(AudioDetector ad)
+Simulator::Simulator(AudioDetector& ad) : audio_detector(ad)
 {
-    audio_detector = ad;
 }
 
 void Simulator::InitGraphics()

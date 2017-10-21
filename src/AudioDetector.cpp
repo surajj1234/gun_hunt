@@ -8,6 +8,7 @@
 AudioDetector::AudioDetector()
 {
     detected = false;
+    terminate = false;
 }
 
 AudioDetector::~AudioDetector()

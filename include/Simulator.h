@@ -11,13 +11,13 @@
 class Simulator
 {
     public:
-        Simulator(AudioDetector detector);
+        Simulator(AudioDetector& ad);
         ~Simulator();
         void Run();
         void InitGraphics();
 
     private:
-        AudioDetector audio_detector;
+        AudioDetector& audio_detector;
         int rows, cols;
         int start_y, start_x;
         int spacing_y, spacing_x;
