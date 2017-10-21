@@ -9,7 +9,8 @@
 #include <time.h>
 #include <math.h>
 
-Simulator::Simulator(AudioDetector& ad) : audio_detector(ad)
+Simulator::Simulator(AudioDetector& ad, CommClient& comms) :
+    audio_detector(ad), communications(comms)
 {
 }
 
@@ -30,6 +31,8 @@ void Simulator::InitGraphics()
         start_color();
         init_pair(1, COLOR_RED, COLOR_WHITE);
         init_pair(2, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(3, COLOR_RED, COLOR_BLACK);
+        init_pair(4, COLOR_GREEN, COLOR_BLACK);
     }
 
     // Ugly hack to get terminal emulators to report mouse movement
@@ -43,14 +46,11 @@ void Simulator::drawScreen()
 {
     clear();
 
-    if (has_colors())
-    {
-        attron(COLOR_PAIR(1));
-    }
-
+    turnOnColor(1);
     mvprintw(0, 0, "Move mouse inside battlefield to change Lat/Long");
     mvprintw(2, 0, "Mouse Left Click inside battlefield to fire a gunshot");
     mvprintw(4, 0, "Press q to exit\n");
+    turnOffColor(1);
 
     // Figure out scaled co-ordinates and draw box for battlefield, with
     // dynamic spacing from the window borders
@@ -72,14 +72,12 @@ void Simulator::drawScreen()
     box_y3 = box_y1;
     box_x3 = cols - spacing_x;
 
-    if (has_colors())
-    {
-        attron(COLOR_PAIR(2));
-    }
+    turnOnColor(2);
     mvhline(box_y1, box_x1, '*', cols - (2 * spacing_x));
     mvhline(box_y2, box_x2, '*', cols - (2 * spacing_x));
     mvvline(box_y3, box_x3, '*', (rows - start_y) - (2 * spacing_y));
     mvvline(box_y1, box_x1, '*', (rows - start_y) - (2 * spacing_y));
+    turnOffColor(2);
 
     if (has_colors())
     {
@@ -95,6 +93,9 @@ void Simulator::drawScreen()
 
     timestamp_y = latitude_y;
     timestamp_x = box_x1 + 30;
+
+    server_y = latitude_y;
+    server_x = box_x1 + 50;
 
     updatePositionData(box_y1, box_x1);
 
@@ -117,7 +118,7 @@ void Simulator::Run()
         {
             handleMouseEvent();
         }
-        updateTimestamp();
+        updateEvents_1Hz();
         checkForScreenResize();
     }
 }
@@ -156,13 +157,31 @@ void Simulator::updatePositionData(int mouse_y, int mouse_x)
     mvprintw(longitude_y, longitude_x, "Long: %03dE", mouse_x - box_x1);
 }
 
-void Simulator::updateTimestamp()
+void Simulator::updateEvents_1Hz()
 {
     static struct timespec prev = {0,0};;
     if (timeSinceMs(prev) > 1000)           // 1 Hz
     {
+        // Update timestamp
         clock_gettime(CLOCK_REALTIME, &prev);
         mvprintw(timestamp_y, timestamp_x, "Time: %ld", prev.tv_sec);
+
+        // Update server status
+        mvprintw(server_y, server_x, "Server: ");
+        bool connected = communications.IsConnected();
+        if (connected)
+        {
+            turnOnColor(4);
+            printw("CONNECTED   ");
+            turnOffColor(4);
+        }
+        else
+        {
+            turnOnColor(3);
+            printw("DISCONNECTED");
+            turnOffColor(3);
+        }
+
         // TODO: Send gps info to serial port
     }
 }
@@ -183,5 +202,21 @@ void Simulator::checkForScreenResize()
     if ((current_rows != rows) || (current_cols != cols))
     {
         drawScreen();
+    }
+}
+
+void Simulator::turnOnColor(int color_pair_index)
+{
+    if (has_colors())
+    {
+        attron(COLOR_PAIR(color_pair_index));
+    }
+}
+
+void Simulator::turnOffColor(int color_pair_index)
+{
+    if (has_colors())
+    {
+        attroff(COLOR_PAIR(color_pair_index));
     }
 }

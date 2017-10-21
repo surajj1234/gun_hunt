@@ -4,7 +4,6 @@
 ****************************************************************************/
 
 #include "Executor.h"
-#include "stdio.h"
 
 Executor::Executor(AudioDetector& ad) : audio_detector(ad)
 {
@@ -17,7 +16,7 @@ Executor::~Executor()
 
 void Executor::Run()
 {
-    while(false == terminate)
+    while(terminate == false)
     {
         if (audio_detector.GunshotDetected())
         {

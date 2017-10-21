@@ -21,7 +21,7 @@ void AudioDetector::Run()
     // Maybe a FFT -> frequency analysis -> pattern matching -> etc...?
     // If all else fails, throw some youtube videos into neural nets and
     // hope it works !
-    while(false == terminate);
+    while(terminate == false);
 }
 
 bool AudioDetector::GunshotDetected()
