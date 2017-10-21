@@ -17,10 +17,10 @@ OBJDIR = build/obj
 CXX = g++
 
 # Compile options
-CFLAGS = -c -Wall -I$(INCDIR) -fdiagnostics-color=always
+CFLAGS = -c -std=c++11 -Wall -I$(INCDIR) -fdiagnostics-color=always
 
 # Linking options
-LDFLAGS = -lncurses
+LDFLAGS = -lncurses -lpthread
 
 # Executables 
 TARGET = gun_hunt

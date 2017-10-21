@@ -11,7 +11,7 @@ class Simulator
     public:
         Simulator();
         ~Simulator();
-        void Run(void * param);
+        void Run();
         void InitGraphics(void);
 
     private:

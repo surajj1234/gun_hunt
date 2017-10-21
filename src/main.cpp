@@ -5,13 +5,17 @@
 
 #include "Simulator.h"
 #include <cstddef>
+#include <thread>
+#include <iostream>
 
 int main(void)
 {
     Simulator sim;
     sim.InitGraphics();
 
-    sim.Run(NULL);
+    std::thread sim_thread(&Simulator::Run, std::ref(sim));
+
+    sim_thread.join();
     return 0;
 }
 

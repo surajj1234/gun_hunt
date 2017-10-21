@@ -107,7 +107,7 @@ Simulator::~Simulator()
     endwin();
 }
 
-void Simulator::Run(void * param)
+void Simulator::Run(void)
 {
     int ch;
 

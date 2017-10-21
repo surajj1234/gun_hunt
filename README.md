@@ -10,6 +10,7 @@ B) Install dependencies
     $ sudo apt-get update
     $ sudo apt-get install netcat
     $ sudo apt-get install libncurses-dev
+    $ sudo apt-get install libpthread-stubs0-dev
 
 C) Compile & build
 
