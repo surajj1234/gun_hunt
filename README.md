@@ -27,7 +27,7 @@ Navigate to the project root directory, then
     $ ./gun_hunt
 
 To test network connectivity, open a different terminal and run
-    ```$ netcat -ul localhost 4444```
-netcat will start listening for incoming UDP packets on port 4444
+    ```$ netcat -l localhost 4444```
+netcat will start listening for incoming TCP packets on port 4444
 
 Enjoy the hunt !
