@@ -110,6 +110,7 @@ GpsData GpsDriver::GetData()
     double stale_duration = timeDiff(last_data_update, now);
     stale_duration /= 1.0e9;   // In seconds
     data.time += stale_duration;
+    last_data_update = now;
 
     return data;
 }
