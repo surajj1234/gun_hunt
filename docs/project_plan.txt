@@ -1,9 +1,8 @@
 Goals
 
-1. Build something that works
+1. Build something cool
 2. Learn something new
-3. Have fun
-4. Elicit a "Wow, that's cool!" response
+3. Have fun !
 
 Demonstrate the following skills
 - Architecture design
@@ -11,15 +10,14 @@ Demonstrate the following skills
 - Requirements analysis
 - Unit testing
 - Version Control
-- Package Management & Deployment
+- Package Management/Deployment
 
 Work Breakdown & Deliverables
 
 Design (2 hours)
- - Design UX / come up with requirements
+ - Design UX & come up with requirements
  - Design software architecture
  - Define module interfaces
-
 Code (6 hours)
 
 

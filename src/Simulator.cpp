@@ -9,8 +9,8 @@
 #include <time.h>
 #include <math.h>
 
-Simulator::Simulator(AudioDetector& ad, CommClient& comms) :
-    audio_detector(ad), communications(comms)
+Simulator::Simulator(AudioDetector& ad, CommClient& comms, FakeSerial& ser) :
+    audio_detector(ad), communications(comms), serial(ser)
 {
 }
 
@@ -24,7 +24,7 @@ void Simulator::InitGraphics()
     keypad(stdscr, true);
     noecho();
     mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
-    mouseinterval(100);      // In ms
+    mouseinterval(75);      // In ms
 
     if (has_colors())
     {
@@ -148,8 +148,10 @@ bool Simulator::pointInBox(int y, int x)
 
 void Simulator::updatePositionData(int mouse_y, int mouse_x)
 {
-    mvprintw(latitude_y, latitude_x, "Lat: %03dS", mouse_y - box_y1);
-    mvprintw(longitude_y, longitude_x, "Long: %03dE", mouse_x - box_x1);
+    gps_latitude = mouse_y - box_y1;
+    gps_longitude = mouse_x - box_x1;
+    mvprintw(latitude_y, latitude_x, "Lat: %03dS", gps_latitude);
+    mvprintw(longitude_y, longitude_x, "Long: %03dE", gps_longitude);
 }
 
 void Simulator::updateEvents_1Hz()
@@ -177,7 +179,23 @@ void Simulator::updateEvents_1Hz()
             turnOffColor(RED_ON_BLACK);
         }
 
+        // TODO: Call gps pulse interrupt handler
         // TODO: Send gps info to serial port
+        double gps_time = prev.tv_sec + (double)prev.tv_nsec / 1.0e9;
+        // TODO: Refactor packet construction
+        std::string gps_output = std::string("$GPXXX")          +
+                                 std::string(",")               +
+                                 std::to_string(gps_latitude)   +
+                                 std::string(",")               +
+                                 std::string("S")               +
+                                 std::string(",")               +
+                                 std::to_string(gps_longitude)  +
+                                 std::string(",")               +
+                                 std::string("E")               +
+                                 std::string(",")               +
+                                 std::to_string(gps_time)       +
+                                 "\n";
+        serial.AddData(gps_output);
     }
 }
 

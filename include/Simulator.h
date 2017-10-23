@@ -8,11 +8,12 @@
 
 #include "AudioDetector.h"
 #include "CommClient.h"
+#include "FakeSerial.h"
 
 class Simulator
 {
     public:
-        Simulator(AudioDetector& ad, CommClient& comms);
+        Simulator(AudioDetector& ad, CommClient& comms, FakeSerial& serial);
         ~Simulator();
         void Run();
         void InitGraphics();
@@ -22,6 +23,7 @@ class Simulator
                         RED_ON_BLACK = 3, GREEN_ON_BLACK = 4};
         AudioDetector& audio_detector;
         CommClient& communications;
+        FakeSerial& serial;
         int rows, cols;
         int start_y, start_x;
         int spacing_y, spacing_x;
@@ -29,6 +31,7 @@ class Simulator
         int box_y1, box_x1, box_y2, box_x2, box_y3, box_x3;
         int timestamp_y, timestamp_x;
         int server_y, server_x;
+        int gps_latitude, gps_longitude;
         void drawScreen();
         void handleMouseEvent();
         bool pointInBox(int x, int y);
