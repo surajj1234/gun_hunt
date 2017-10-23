@@ -8,9 +8,11 @@
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
+#include <unistd.h>
 
-Simulator::Simulator(AudioDetector& ad, CommClient& comms, FakeSerial& ser) :
-    audio_detector(ad), communications(comms), serial(ser)
+Simulator::Simulator(AudioDetector& ad, CommClient& comms, FakeSerial& ser,
+                     GpsDriver& gd) :
+    audio_detector(ad), communications(comms), serial(ser), gps(gd)
 {
 }
 
@@ -179,8 +181,8 @@ void Simulator::updateEvents_1Hz()
             turnOffColor(RED_ON_BLACK);
         }
 
-        // TODO: Call gps pulse interrupt handler
         double gps_time = prev.tv_sec + (double)prev.tv_nsec / 1.0e9;
+        gps.PulseInterruptHandler();
 
         // Send simulated GPS input to the serial stream
         std::string gps_output = std::string("$GPXXX")          +
@@ -195,6 +197,9 @@ void Simulator::updateEvents_1Hz()
                                  std::string(",")               +
                                  std::to_string(gps_time)       +
                                  "\n";
+        // Add a 50 ms delay to simulate system delays in receiving serial
+        // data from the gps receiver
+        usleep(50 * 1000);
         serial.AddData(gps_output);
     }
 }

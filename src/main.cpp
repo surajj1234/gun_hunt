@@ -21,7 +21,7 @@ int main()
     FakeSerial serial;
     GpsDriver gps(serial);
     Executor executor(detector, gps, comms);
-    Simulator sim(detector, comms, serial);
+    Simulator sim(detector, comms, serial, gps);
 
     sim.InitGraphics();
 

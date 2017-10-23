@@ -9,11 +9,13 @@
 #include "AudioDetector.h"
 #include "CommClient.h"
 #include "FakeSerial.h"
+#include "GpsDriver.h"
 
 class Simulator
 {
     public:
-        Simulator(AudioDetector& ad, CommClient& comms, FakeSerial& serial);
+        Simulator(AudioDetector& ad, CommClient& comms, FakeSerial& serial,
+                  GpsDriver& gd);
         ~Simulator();
         void Run();
         void InitGraphics();
@@ -24,6 +26,7 @@ class Simulator
         AudioDetector& audio_detector;
         CommClient& communications;
         FakeSerial& serial;
+        GpsDriver& gps;
         int rows, cols;
         int start_y, start_x;
         int spacing_y, spacing_x;

@@ -95,7 +95,7 @@ void GpsDriver::Quit()
 
 GpsData GpsDriver::GetData()
 {
-    // Note: Since there is a fixed update rate from the sensor, there
+    // TODO: Since there is a fixed update rate from the sensor, there
     // will a worst case latency in the position estimate equal to the
     // update interval. A possible mitigation could be to track velocity
     // and predict current position based on the current timestamp.
@@ -105,14 +105,17 @@ GpsData GpsDriver::GetData()
     return data;
 }
 
-void GpsDriver::PulseInterruptHandler(struct timespec time)
+void GpsDriver::PulseInterruptHandler()
 {
     // This method should be called from a hardware interrupt handler which 
     // triggers on receiving a synchronizing pulse from the gps device
-    // TODO: Implement this
+
+    struct timespec now;
+    clock_gettime(CLOCK_REALTIME, &now);
 
     // Critical section
     std::lock_guard<std::mutex> lk(my_lock);
+    pulse_sync = now;
 }
 
 void GpsDriver::processPacket(std::string& packet)
@@ -127,7 +130,16 @@ void GpsDriver::processPacket(std::string& packet)
         data.lat_direction = items[2];
         data.longitude = std::stoi(items[3]);
         data.long_direction = items[4];
-        data.time = std::stod(items[5]);
+
+        // Calculate gps latency. The latency is equal to the time between
+        // the synchronization pulse from the receiver and the time we
+        // process the packet, after transmission delays
+        double old_time = std::stod(items[5]);
+        struct timespec now;
+        clock_gettime(CLOCK_REALTIME, &now);
+        double latency = timeDiff(pulse_sync, now);
+        latency /= 1.0e9;   // In seconds
+        data.time = old_time + latency;
     }
     else
     {
@@ -188,14 +200,20 @@ bool GpsDriver::rxTimeout(struct timespec start)
     struct timespec end;
     clock_gettime(CLOCK_REALTIME, &end);
 
-    double diff = (double)(end.tv_sec - start.tv_sec) * 1.0e9 +
-              (double)(end.tv_nsec - start.tv_nsec);
+    double diff = timeDiff(start, end);
     diff /= 1.0e6;
 
     if (diff >= FRAME_TIMEOUT_MS)
         return true;
     else
         return false;
+}
+
+double GpsDriver::timeDiff(struct timespec oldtime, struct timespec newtime)
+{
+    // TODO: Add check to make sure newtime > oldtime
+    return (double)(newtime.tv_sec - oldtime.tv_sec) * 1.0e9 +
+              (double)(newtime.tv_nsec - oldtime.tv_nsec);      // In ns
 }
 
 bool GpsDriver::isAValidNumber(std::string number)

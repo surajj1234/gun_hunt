@@ -29,7 +29,7 @@ class GpsDriver
         void Run();
         void Quit();
         GpsData GetData();
-        void PulseInterruptHandler(struct timespec time);
+        void PulseInterruptHandler();
     private:
         Serial& serial;
         GpsData data;
@@ -43,6 +43,7 @@ class GpsDriver
 
         struct timespec last_data_update;
         struct timespec frame_rx_start;
+        struct timespec pulse_sync;
 
         void updateStateMachine(uint8_t byte);
         void processPacket(std::string& packet);
@@ -51,6 +52,7 @@ class GpsDriver
         bool rxTimeout(struct timespec start);
         bool isAValidNumber(std::string number);
         bool isAValidDirection(std::string direction);
+        double timeDiff(struct timespec oldtime, struct timespec newtime);
 };
 
 #endif
