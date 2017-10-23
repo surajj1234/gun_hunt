@@ -102,6 +102,15 @@ GpsData GpsDriver::GetData()
 
     // Critical section
     std::lock_guard<std::mutex> lk(my_lock);
+
+    // We need to account for the asynchronous read requests which can
+    // happen at any point
+    struct timespec now;
+    clock_gettime(CLOCK_REALTIME, &now);
+    double stale_duration = timeDiff(last_data_update, now);
+    stale_duration /= 1.0e9;   // In seconds
+    data.time += stale_duration;
+
     return data;
 }
 
@@ -140,6 +149,8 @@ void GpsDriver::processPacket(std::string& packet)
         double latency = timeDiff(pulse_sync, now);
         latency /= 1.0e9;   // In seconds
         data.time = old_time + latency;
+
+        last_data_update = now;
     }
     else
     {
