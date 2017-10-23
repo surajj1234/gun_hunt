@@ -72,7 +72,7 @@ void GpsDriver::updateStateMachine(uint8_t byte)
                 // Should have seen the terminator by now, abort current frame
                 rx_state = RX_START_OF_FRAME;
             }
-            else if (rxTimeout())
+            else if (rxTimeout(frame_rx_start))
             {
                 rx_state = RX_START_OF_FRAME;
             }
@@ -183,10 +183,19 @@ bool GpsDriver::validPacket(std::vector<std::string>& items)
     return true;
 }
 
-bool GpsDriver::rxTimeout()
+bool GpsDriver::rxTimeout(struct timespec start)
 {
-    // TODO: Implement this
-    return false;
+    struct timespec end;
+    clock_gettime(CLOCK_REALTIME, &end);
+
+    double diff = (double)(end.tv_sec - start.tv_sec) * 1.0e9 +
+              (double)(end.tv_nsec - start.tv_nsec);
+    diff /= 1.0e6;
+
+    if (diff >= FRAME_TIMEOUT_MS)
+        return true;
+    else
+        return false;
 }
 
 bool GpsDriver::isAValidNumber(std::string number)

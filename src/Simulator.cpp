@@ -201,7 +201,7 @@ void Simulator::updateEvents_1Hz()
 
 double Simulator::timeSinceMs(struct timespec start)
 {
-    static struct timespec end;
+    struct timespec end;
     clock_gettime(CLOCK_REALTIME, &end);
     double diff = (double)(end.tv_sec - start.tv_sec) * 1.0e9 +
               (double)(end.tv_nsec - start.tv_nsec);

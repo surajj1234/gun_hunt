@@ -48,7 +48,7 @@ class GpsDriver
         void processPacket(std::string& packet);
         bool validPacket(std::vector<std::string>& items);
         std::vector<std::string> splitPacket(std::string& packet);
-        bool rxTimeout();
+        bool rxTimeout(struct timespec start);
         bool isAValidNumber(std::string number);
         bool isAValidDirection(std::string direction);
 };
