@@ -23,21 +23,7 @@ void Executor::Run()
         if (audio_detector.GunshotDetected())
         {
             GpsData data = gps.GetData();
-            // TODO: Refactor packet construction
-            std::string packet = std::string("Latitude: ")            +
-                                 std::to_string(data.latitude)        +
-                                 std::string(" ")                     +
-                                 std::to_string(data.lat_direction)      +
-                                 std::string("\t")                    +
-                                 std::string("Longitude: ")           +
-                                 std::to_string(data.longitude)       +
-                                 std::string(" ")                     +
-                                 std::to_string(data.long_direction)  +
-                                 std::string("\t")                    +
-                                 std::string("Time: ")                +
-                                 std::to_string(data.longitude)       +
-                                 std::to_string(data.time)            +
-                                 std::string("\n");
+            std::string packet = makePacket(data);
             comms.SendData(packet);
             audio_detector.Reset();
         }
@@ -47,4 +33,20 @@ void Executor::Run()
 void Executor::Quit()
 {
     terminate = true;
+}
+
+std::string Executor::makePacket(GpsData& data)
+{
+    std::string packet = std::string("Latitude: ")            +
+                         std::to_string(data.latitude)        +
+                         data.lat_direction                   +
+                         std::string("\t")                    +
+                         std::string("Longitude: ")           +
+                         std::to_string(data.longitude)       +
+                         data.long_direction                  +
+                         std::string("\t")                    +
+                         std::string("Time: ")                +
+                         std::to_string(data.time)            +
+                         std::string("\n");
+    return packet;
 }

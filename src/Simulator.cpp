@@ -180,9 +180,9 @@ void Simulator::updateEvents_1Hz()
         }
 
         // TODO: Call gps pulse interrupt handler
-        // TODO: Send gps info to serial port
         double gps_time = prev.tv_sec + (double)prev.tv_nsec / 1.0e9;
-        // TODO: Refactor packet construction
+
+        // Send simulated GPS input to the serial stream
         std::string gps_output = std::string("$GPXXX")          +
                                  std::string(",")               +
                                  std::to_string(gps_latitude)   +

@@ -20,7 +20,7 @@ class AudioDetector
        void setDetected(bool state);
        bool detected;
        bool terminate;
-       friend class Simulator;  // TODO: Is there a better way to do this? 
+       friend class Simulator;
 };
 
 #endif

@@ -28,7 +28,6 @@ GpsDriver::GpsDriver(Serial& ser) : serial(ser)
 {
     rx_state = RX_START_OF_FRAME;
     rx_length = 0;
-    clock_gettime(CLOCK_REALTIME, &last_data_update);
     std::memset(&data, 0x0, sizeof(data));
     terminate = false;
 }
@@ -96,7 +95,13 @@ void GpsDriver::Quit()
 
 GpsData GpsDriver::GetData()
 {
-    //TODO: Critical section
+    // Note: Since there is a fixed update rate from the sensor, there
+    // will a worst case latency in the position estimate equal to the
+    // update interval. A possible mitigation could be to track velocity
+    // and predict current position based on the current timestamp.
+
+    // Critical section
+    std::lock_guard<std::mutex> lk(my_lock);
     return data;
 }
 
@@ -105,25 +110,31 @@ void GpsDriver::PulseInterruptHandler(struct timespec time)
     // This method should be called from a hardware interrupt handler which 
     // triggers on receiving a synchronizing pulse from the gps device
     // TODO: Implement this
+
+    // Critical section
+    std::lock_guard<std::mutex> lk(my_lock);
 }
 
-#include <iostream>
 void GpsDriver::processPacket(std::string& packet)
 {
     std::vector<std::string> items = splitPacket(packet);
     if (validPacket(items))
     {
-        //std::cout << packet;
-        for (int i = 0; i < (int)items.size(); i++)
-        {
-            //std::cout << items[i] << "\n";
-        }
-        // TODO: Critical section
+        // Critical section
+        std::lock_guard<std::mutex> lk(my_lock);
+
         data.latitude = std::stoi(items[1]);
-        data.lat_direction = items[2][0];
+        data.lat_direction = items[2];
         data.longitude = std::stoi(items[3]);
-        data.long_direction = items[4][0];
+        data.long_direction = items[4];
         data.time = std::stod(items[5]);
+    }
+    else
+    {
+        // TODO: Not sure how to handle invalid packets. The cached data will
+        // become stale if we miss a legitimate packet. Perhaps implement a
+        // timeout and set an error flag if we see too many packet drops, or
+        // haven't seem a good packet in a while
     }
 }
 
@@ -148,7 +159,27 @@ std::vector<std::string> GpsDriver::splitPacket(std::string& packet)
 
 bool GpsDriver::validPacket(std::vector<std::string>& items)
 {
-    // TODO: Implement this
+    if (items.size() != 6)
+        return false;
+
+    if (items[0] != std::string(FRAME_HEADER))
+        return false;
+
+    if (!isAValidNumber(items[1]))      // Latitude should be a valid number
+        return false;
+
+    if (!isAValidDirection(items[2]))
+        return false;
+
+    if (!isAValidNumber(items[3]))      // Longitude should be a valid number
+        return false;
+
+    if (!isAValidDirection(items[4]))
+        return false;
+
+    if (!isAValidNumber(items[5]))      // Time should be a valid number
+        return false;
+
     return true;
 }
 
@@ -156,4 +187,18 @@ bool GpsDriver::rxTimeout()
 {
     // TODO: Implement this
     return false;
+}
+
+bool GpsDriver::isAValidNumber(std::string number)
+{
+    // TODO: Implement a method that returns true if the input is a valid
+    // integer or float, and false otherwise
+    return true;
+}
+
+bool GpsDriver::isAValidDirection(std::string direction)
+{
+    // TODO: Implement a method that returns true if the input is equal to
+    // one of the following: "N", "S", "E", "W", and false otherwise
+    return true;
 }

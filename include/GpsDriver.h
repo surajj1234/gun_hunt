@@ -10,14 +10,15 @@
 #include <time.h>
 #include <string>
 #include <vector>
+#include <mutex>
 
 typedef struct GpsData
 {
-    int    latitude;
-    char   lat_direction;
-    int    longitude;
-    char   long_direction;
-    double time;            // Time since UNIX epoch, in seconds (ns precision)
+    int           latitude;
+    std::string   lat_direction;
+    int           longitude;
+    std::string   long_direction;
+    double time;  // Time since UNIX epoch, in seconds (with ns precision)
 } GpsData;
 
 class GpsDriver
@@ -32,11 +33,14 @@ class GpsDriver
     private:
         Serial& serial;
         GpsData data;
+        std::mutex my_lock;
         bool terminate;
+
         enum RxState {RX_START_OF_FRAME, RX_DATA};
         RxState rx_state;
         uint8_t rx_length;
         std::string rx_buffer;
+
         struct timespec last_data_update;
         struct timespec frame_rx_start;
 
@@ -45,6 +49,8 @@ class GpsDriver
         bool validPacket(std::vector<std::string>& items);
         std::vector<std::string> splitPacket(std::string& packet);
         bool rxTimeout();
+        bool isAValidNumber(std::string number);
+        bool isAValidDirection(std::string direction);
 };
 
 #endif

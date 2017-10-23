@@ -23,6 +23,7 @@ class Executor
         GpsDriver& gps;
         CommClient& comms;
         bool terminate;
+        std::string makePacket(GpsData& data);
 };
 
 #endif
